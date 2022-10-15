@@ -19,3 +19,9 @@
 #### 3.注意事项：
 
 &nbsp;&nbsp;&nbsp;&nbsp;生成的字典和生成的CSV都会出现在PK-zip的同级目录下，分别叫`output.dic` 和 `output.csv` ！
+
+<br>
+
+#### 4.运行效果：
+
+![](images/image.png)
