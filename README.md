@@ -16,9 +16,11 @@
 
 #### 2.食用过程：
 
-1. `pip3 install requirements.txt`
+1. `git clone https://github.com/theonlypwner/crc32`
 
-2. `python3 .\main.py -f .\demo\demo.zip`
+2. `pip3 install requirements.txt`
+
+3. `python3 .\main.py -f .\demo\demo.zip`
 
 <br>
 
