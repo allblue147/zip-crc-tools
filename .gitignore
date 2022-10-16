@@ -2,4 +2,4 @@
 .gitignore
 __pycache__/
 
-/crc32
+/crc32/
