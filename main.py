@@ -30,7 +30,10 @@ if not str(args.f).endswith(".zip"):
     console.print("-f 参数需要的是一个PK-zip格式的文件!", style="bold red")
     os.system("pause")
     exit(-1)
-
+elif not os.path.exists(os.path.join(base_dir, "crc32")):
+    console.print("由于本项目目录没有crc32文件夹, 请查看README.txt的食用过程第一项!", style="bold red")
+    os.system("pause")
+    exit(-1)
 
 def read_zip():
     z = zipfile.ZipFile(file_path)
