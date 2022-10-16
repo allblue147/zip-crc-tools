@@ -1,4 +1,10 @@
-# Pk-zip Crc32 Tools
+# Zip-Crc-Tools
+
+#### 0.关于
+
+&nbsp;&nbsp;&nbsp;&nbsp;本项目是基于 [theonlypwner/crc32](https://github.com/theonlypwner/crc32) 实现的，如果有Bug，可以联系我，如果提交Issues。
+
+<br>
 
 #### 1.环境：
 
