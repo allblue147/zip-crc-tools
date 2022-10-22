@@ -104,7 +104,7 @@ if __name__ == "__main__":
             f.write(", ".join(["File name", "Size", "Checksum", "Text"]) + "\n")
             for info in zip_info:
                 for i in info:
-                    f.write('   '.join(i)) if isinstance(i, list) else f.write(f"{str(i)}, ")
+                    f.write(','.join(i)) if isinstance(i, list) else f.write(f"{str(i)},")
                 f.write("\n")
         print("Generate Csv-file Finish!")
         time.sleep(1)
