@@ -40,5 +40,10 @@
 
 下面演示是通过 [BluePointLilac/ContextMenuManager](https://github.com/BluePointLilac/ContextMenuManager) 实现的绑定到右键的效果：
 
+**-f模式：**
+
 ![](images/image.gif)
 
+**-t模式（默认为4字节）：**
+
+![](images/image2.gif)
