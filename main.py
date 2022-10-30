@@ -12,30 +12,63 @@ from prettytable import PrettyTable
 
 from src import Color
 
+
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", type=str, default=None, required=True,
+parser.add_argument("-f", type=str, default=None, required=False,
                     help="输入PK-zip文件")
+parser.add_argument("-t", type=str, default=None, required=False,
+                    help="输入crc32字符串 如: python main.py -t '0xce70d424, 0x1c8600e3, ..., 0x01521186'")
 args  = parser.parse_args()
-
-base_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.abspath(args.f)
-save_dir = os.path.dirname(file_path)
-
 
 console = Console()
 color = Color.Color()
+base_dir = os.path.dirname(os.path.abspath(__file__))
 PATTERNS = ["4 bytes: (.*?) {", "5 bytes: (.*?) \(", "6 bytes: (.*?) \("]
 
-if not str(args.f).endswith(".zip"):
-    console.print("-f 参数需要的是一个PK-zip格式的文件!", style="bold red")
-    os.system("pause")
-    exit(-1)
-elif not os.path.exists(os.path.join(base_dir, "crc32")):
-    console.print("由于本项目目录没有crc32文件夹, 请查看README.txt的食用过程第一项!", style="bold red")
-    os.system("pause")
-    exit(-1)
+def init():
+    # 1.检查传入的参数
+    file_path, save_dir = None, None
+    if args.f and args.t:
+        console.print("参数-f 和 参数-t只可以使用一个哦~~", style="bold red")
+        exit(-1)
+    elif args.f is None and args.t is None:
+        console.print("参数-f 和 参数-t你总得使用一个哦~~", style="bold red")
+        exit(-1)
 
-def read_zip():
+    # 2.检查文件是否存在顺便设置sava_dir
+    if args.f:
+        file_path = os.path.abspath(os.path.abspath(args.f))
+        if os.path.exists(file_path):
+            save_dir = os.path.dirname(file_path)
+        else:
+            console.print("参数-f 的zip文件不存在~", style="bold red")
+    elif args.t:
+        save_dir = os.getcwd()
+            
+    # 2.检查是否有crc32项目
+    if not os.path.exists(os.path.join(base_dir, "crc32")):
+        console.print("由于本项目目录没有crc32文件夹, 请查看README.txt的食用过程第一项!", style="bold red")
+        os.system("pause")
+        exit(-1)
+
+    # 3.检查输入的文件是否为zip格式
+    if args.f and not args.f.endswith(".zip"):
+        console.print("参数-f 需要的是一个PK-zip格式的文件!", style="bold red")
+        os.system("pause")
+        exit(-1)
+    return file_path, save_dir
+
+def get_crc(crc_str):
+    zip_info = []
+    crc_list = [i.strip() for i in crc_str.split(",")]
+    for hex_crc in crc_list:
+        res = subprocess.Popen(f"python {base_dir}/crc32/crc32.py reverse {hex_crc}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
+        plan_text = re.findall(PATTERNS[0], result)
+        zip_info.append(["None", 4, hex_crc, plan_text])
+    return zip_info
+
+def read_zip(file_path):
     z = zipfile.ZipFile(file_path)
     zip_info = []
     name_list = z.namelist()
@@ -86,7 +119,13 @@ def show_table(zip_info):
 
 
 if __name__ == "__main__":
-    zip_info = read_zip()
+    file_path, save_dir = init()
+    
+    if args.f:
+        zip_info = read_zip(file_path)
+    elif args.t:
+        zip_info = get_crc(args.t)
+    
     tables = show_table(zip_info)
 
     if all(info[-1] == "False" for info in tables):
