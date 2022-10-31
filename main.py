@@ -62,7 +62,7 @@ def get_crc(crc_str):
     zip_info = []
     crc_list = [i.strip() for i in crc_str.split(",")]
     for hex_crc in crc_list:
-        res = subprocess.Popen(f"python {os.path.join(base_dir, 'crc32', 'crc32.py')} reverse {hex_crc}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = subprocess.Popen(f'python "{os.path.join(base_dir, "crc32", "crc32.py")}" reverse {hex_crc}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
         plan_text = re.findall(PATTERNS[0], result)
         zip_info.append(["None", 4, hex_crc, plan_text])
