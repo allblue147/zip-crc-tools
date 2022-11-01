@@ -1,5 +1,6 @@
 import os
 import re
+import zlib
 import time
 import copy
 import zipfile
@@ -17,7 +18,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f", type=str, default=None, required=False,
                     help="输入PK-zip文件")
 parser.add_argument("-t", type=str, default=None, required=False,
-                    help="输入crc32字符串 如: python main.py -t '0xce70d424, 0x1c8600e3, ..., 0x01521186'")
+                    help="输入crc32字符串 如: python .\main.py -t '1|0x83dcefb7, 0xd9403697| 2|0x647e170e, 0x0a6216d9| 3|0x92d786fd| 4|0xf7c0246a|'")
 args  = parser.parse_args()
 
 console = Console()
@@ -58,14 +59,47 @@ def init():
         exit(-1)
     return file_path, save_dir
 
+def upper_carck(hex_crc, size):
+    res = subprocess.Popen(f'python "{os.path.join(base_dir, "crc32", "crc32.py")}" reverse {hex_crc}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
+    return re.findall(PATTERNS[size - 4], result)
+
+def lower_carck(crc_num):
+    for j in range(1, 4):
+        for i in itertools.product(range(256), repeat=j):
+            if crc_num == zlib.crc32(bytes(i)):
+                return [bytes(i).decode("latin1")]
+    return []
+
+def carck_crc(hex_crc, size):
+    if int(size) >= 4:
+        plan_text = upper_carck(hex_crc, int(size))
+        return plan_text
+    elif 1 <= int(size) <= 3:
+        plan_text = lower_carck(int(hex_crc, 16))
+        return plan_text
+
+def match(size, text):
+    if (lis := re.findall(f"{size}\\|(.*?)\\|", text)) != []:
+        return [i.strip() for i in lis[0].split(",")]
+    return []
+
+def get_size(hex_crc, size_dict: dict):
+    for key, value in size_dict.items():
+        for crc in value:
+            if hex_crc == crc:
+                return key
+
 def get_crc(crc_str):
+    size_dict = {str(i): match(i, crc_str) for i in range(1, 7)}
+    crc_list = re.findall("(0x.*?)[,|]", args.t)
+
     zip_info = []
-    crc_list = [i.strip() for i in crc_str.split(",")]
     for hex_crc in crc_list:
-        res = subprocess.Popen(f'python "{os.path.join(base_dir, "crc32", "crc32.py")}" reverse {hex_crc}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
-        plan_text = re.findall(PATTERNS[0], result)
-        zip_info.append(["None", 4, hex_crc, plan_text])
+        size = get_size(hex_crc, size_dict)
+        
+        plan_text = carck_crc(hex_crc, size)
+        zip_info.append(["None", size, hex_crc, plan_text])
     return zip_info
 
 def read_zip(file_path):
@@ -80,20 +114,9 @@ def read_zip(file_path):
             zip_info.append([file_name, size, hex_crc])
 
     for i, (file_name, size, hex_crc) in enumerate(zip_info):
-        res = subprocess.Popen(f"python {base_dir}/crc32/crc32.py reverse {hex_crc}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
-
-        plan_text = []
-        if size == 4:
-            plan_text = re.findall(PATTERNS[0], result)
-        elif size == 5:
-            plan_text = re.findall(PATTERNS[1], result)
-        elif size == 6:
-            plan_text = re.findall(PATTERNS[2], result)
-
+        plan_text = carck_crc(hex_crc, size)
         zip_info[i].append(plan_text)
     return zip_info
-
 
 def show_table(zip_info):
     tables = copy.deepcopy(zip_info)
@@ -129,16 +152,16 @@ if __name__ == "__main__":
     tables = show_table(zip_info)
 
     if all(info[-1] == "False" for info in tables):
-        console.print("按顺序拼接在一起: [bold magenta]" + "".join(info[-1][0] for info in zip_info) + "[/bold magenta]")
+        console.print("按顺序拼接在一起: [bold magenta]" + "".join(info[-1][0] for info in zip_info) + "[/]")
 
-    if console.input("是否需要生成字典: ([bold red]y[/bold red]/[bold green]N[/bold green]): ") in ["Y", "y"]:
+    if console.input("是否需要生成字典: ([bold red]y[/]/[bold green]N[/]): ") in ["Y", "y"]:
         with open(os.path.join(save_dir, "output.dic"), "w") as f:
             with tqdm(itertools.product(*[info[-1] for info in zip_info if info[-1] != []]), desc="Generate Dictionary: ") as bar:
                 for i in bar:
                     f.write("".join(i) + "\n")
         print("Generate Dictionary Finish!")
 
-    if console.input("是否需要导出csv: ([bold red]y[/bold red]/[bold green]N[/bold green]): ") in ["Y", "y"]:
+    if console.input("是否需要导出csv: ([bold red]y[/]/[bold green]N[/]): ") in ["Y", "y"]:
         with open(os.path.join(save_dir, "output.csv"), "w") as f:
             f.write(", ".join(["File name", "Size", "Checksum", "Text"]) + "\n")
             for info in zip_info:
