@@ -62,7 +62,7 @@ def init():
 def upper_carck(hex_crc, size):
     res = subprocess.Popen(f'python "{os.path.join(base_dir, "crc32", "crc32.py")}" reverse {hex_crc}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
-    return re.findall(PATTERNS[size - 4], result)
+    return re.findall(PATTERNS[(size - 4)], result)
 
 def lower_carck(crc_num):
     for j in range(1, 4):
@@ -72,12 +72,12 @@ def lower_carck(crc_num):
     return []
 
 def carck_crc(hex_crc, size):
-    if int(size) >= 4:
-        plan_text = upper_carck(hex_crc, int(size))
-        return plan_text
-    elif 1 <= int(size) <= 3:
+    plan_text = []
+    if 1 <= int(size) <= 3:
         plan_text = lower_carck(int(hex_crc, 16))
-        return plan_text
+    elif  4 <= int(size) <= 6:
+        plan_text = upper_carck(hex_crc, int(size))
+    return plan_text
 
 def match(size, text):
     if (lis := re.findall(f"{size}\\|(.*?)\\|", text)) != []:
@@ -97,7 +97,6 @@ def get_crc(crc_str):
     zip_info = []
     for hex_crc in crc_list:
         size = get_size(hex_crc, size_dict)
-        
         plan_text = carck_crc(hex_crc, size)
         zip_info.append(["None", size, hex_crc, plan_text])
     return zip_info
