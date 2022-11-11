@@ -4,6 +4,8 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;本项目是基于 [theonlypwner/crc32](https://github.com/theonlypwner/crc32) 实现的，如果有Bug，可以联系我或者提交Issues。
 
+感谢8神提供的crc32的1~4字节爆破脚本！
+
 <br>
 
 #### 1.环境：
@@ -44,6 +46,6 @@
 
 ![](images/image.gif)
 
-**-t模式（默认为4字节）：**
+**-t模式：**
 
 ![](images/image2.gif)
