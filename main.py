@@ -59,24 +59,24 @@ def init():
         exit(-1)
     return file_path, save_dir
 
-def upper_carck(hex_crc, size):
+def upper_crack(hex_crc, size):
     res = subprocess.Popen(f'python "{os.path.join(base_dir, "crc32", "crc32.py")}" reverse {hex_crc}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = res.stdout.read().decode('gbk').replace("\r\r\n", "\r\n")
     return re.findall(PATTERNS[(size - 4)], result)
 
-def lower_carck(crc_num):
+def lower_crack(crc_num):
     for j in range(1, 4):
         for i in itertools.product(range(256), repeat=j):
             if crc_num == zlib.crc32(bytes(i)):
                 return [bytes(i).decode("latin1")]
     return []
 
-def carck_crc(hex_crc, size):
+def crack_crc(hex_crc, size):
     plan_text = []
     if 1 <= int(size) <= 3:
-        plan_text = lower_carck(int(hex_crc, 16))
+        plan_text = lower_crack(int(hex_crc, 16))
     elif  4 <= int(size) <= 6:
-        plan_text = upper_carck(hex_crc, int(size))
+        plan_text = upper_crack(hex_crc, int(size))
     return plan_text
 
 def match(size, text):
@@ -97,7 +97,7 @@ def get_crc(crc_str):
     zip_info = []
     for hex_crc in crc_list:
         size = get_size(hex_crc, size_dict)
-        plan_text = carck_crc(hex_crc, size)
+        plan_text = crack_crc(hex_crc, size)
         zip_info.append(["None", size, hex_crc, plan_text])
     return zip_info
 
@@ -113,7 +113,7 @@ def read_zip(file_path):
             zip_info.append([file_name, size, hex_crc])
 
     for i, (file_name, size, hex_crc) in enumerate(zip_info):
-        plan_text = carck_crc(hex_crc, size)
+        plan_text = crack_crc(hex_crc, size)
         zip_info[i].append(plan_text)
     return zip_info
 
