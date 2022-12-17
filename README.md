@@ -20,7 +20,7 @@
 
 1. `git clone https://github.com/theonlypwner/crc32` （务必，没有安装git的话看注意事项3）
 
-2. `pip3 install requirements.txt`
+2. `pip3 install -r requirements.txt`
 
 3. `python3 .\main.py -f .\demo\demo.zip`
 
