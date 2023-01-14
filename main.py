@@ -45,19 +45,21 @@ def init():
             console.print("参数-f 的zip文件不存在~", style="bold red")
     elif args.t:
         save_dir = os.getcwd()
-            
+
     # 2.检查是否有crc32项目
     if not os.path.exists(os.path.join(base_dir, "crc32")):
-        console.print("由于本项目目录没有crc32文件夹, 请查看README.txt的食用过程第一项!", style="bold red")
-        os.system("pause")
-        exit(-1)
-
+        _extracted_from_init_23("由于本项目目录没有crc32文件夹, 请查看README.txt的食用过程第一项!")
     # 3.检查输入的文件是否为zip格式
     if args.f and not args.f.endswith(".zip"):
-        console.print("参数-f 需要的是一个PK-zip格式的文件!", style="bold red")
-        os.system("pause")
-        exit(-1)
+        _extracted_from_init_23("参数-f 需要的是一个PK-zip格式的文件!")
     return file_path, save_dir
+
+
+# TODO Rename this here and in `init`
+def _extracted_from_init_23(arg0):
+    console.print(arg0, style="bold red")
+    os.system("pause")
+    exit(-1)
 
 def upper_crack(hex_crc, size):
     res = subprocess.Popen(f'python "{os.path.join(base_dir, "crc32", "crc32.py")}" reverse {hex_crc}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
