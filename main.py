@@ -162,12 +162,12 @@ if __name__ == "__main__":
                     f.write("".join(i) + "\n")
         print("Generate Dictionary Finish!")
 
-    if console.input("是否需要导出csv: ([bold red]y[/]/[bold green]N[/]): ") in ["Y", "y"]:
-        with open(os.path.join(save_dir, "output.csv"), "w") as f:
+    if console.input("是否需要导出txt: ([bold red]y[/]/[bold green]N[/]): ") in ["Y", "y"]:
+        with open(os.path.join(save_dir, "output.txt"), "w") as f:
             f.write(", ".join(["File name", "Size", "Checksum", "Text"]) + "\n")
             for info in zip_info:
                 for i in info:
                     f.write(','.join(i)) if isinstance(i, list) else f.write(f"{str(i)},")
                 f.write("\n")
-        print("Generate Csv-file Finish!")
+        print("Generate txt-file Finish!")
         time.sleep(1)
