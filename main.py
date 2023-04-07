@@ -108,11 +108,11 @@ def read_zip(file_path):
     zip_info = []
     name_list = z.namelist()
     for file_name in name_list:
-        if file_name.endswith(".txt"):
-            info = z.getinfo(file_name)
-            hex_crc = hex(info.CRC)
-            size = info.file_size
-            zip_info.append([file_name.encode("cp437").decode("gbk"), size, hex_crc])
+        # if file_name.endswith(".txt"):
+        info = z.getinfo(file_name)
+        hex_crc = hex(info.CRC)
+        size = info.file_size
+        zip_info.append([file_name.encode("cp437").decode("gbk"), size, hex_crc])
 
     for i, (file_name, size, hex_crc) in enumerate(zip_info):
         plan_text = crack_crc(hex_crc, size)
