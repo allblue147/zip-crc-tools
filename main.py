@@ -66,7 +66,7 @@ def lower_crack(crc_num):
     for j in range(1, 4):
         for i in itertools.product(range(256), repeat=j):
             if crc_num == zlib.crc32(bytes(i)):
-                return [bytes(i).decode("latin1")]
+                return [bytes(i).decode('latin1')]
     return []
 
 def crack_crc(hex_crc, size):
