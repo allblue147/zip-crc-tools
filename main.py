@@ -1,13 +1,9 @@
-import os
-import re
-import zlib
-import time
-import copy
 import zipfile
 import argparse
 import itertools
 import subprocess
 from tqdm import tqdm
+import os, re, zlib, time, copy
 from rich.console import Console
 from prettytable import PrettyTable
 
@@ -118,6 +114,8 @@ def read_zip(file_path):
     for i, (file_name, size, hex_crc) in enumerate(zip_info):
         plan_text = crack_crc(hex_crc, size)
         zip_info[i].append(plan_text)
+
+    zip_info = sorted(zip_info, key=lambda x: int(re.findall('\d+', x[0].split('/')[-1])[0]) if re.findall('\d+', x[0].split('/')[-1]) else -1)
     return zip_info
 
 def show_table(zip_info):
