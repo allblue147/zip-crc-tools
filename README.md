@@ -32,6 +32,12 @@
 2. 生成的字典和生成的CSV都会出现在PK-zip的同级目录下，分别叫`output.dic` 和 `output.csv` ！
 3. 手动去 https://github.com/theonlypwner/crc32 下载然后放到本项目目录，并重命名目录名为 `crc32` ！
 
+4. 给crc32.py修改一下，添加一些字符进去，crc32.py的第9行，下面的是我的
+
+```
+map(ord, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_!/=-+@{}'))
+```
+
 <br>
 
 #### 4.运行效果：
